@@ -8,12 +8,19 @@ using System.Net;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using System.Runtime;
 using System.Threading.Tasks;
+using Xome.Cascade2.AccountService.Application;
+using Microsoft.Extensions.Options;
 
 namespace Xome.Cascade2.CamundaService.Application.Services
 {
     public class CamundaService
     {
-        public async Task<CamundaProcess> StartProcess(string clusterId, string processDefinitionId, dynamic variables) // AssetUploadRequest assetUploadRequest
+        private readonly ExternalServiceSettings _settings;
+        public CamundaService(IOptions<ExternalServiceSettings> options)
+        {
+            _settings = options.Value;
+        }
+        public async Task<CamundaProcess> StartProcess(string processDefinitionId, dynamic variables) // AssetUploadRequest assetUploadRequest
         {
             var requestBody = new
             {
@@ -21,7 +28,7 @@ namespace Xome.Cascade2.CamundaService.Application.Services
                 variables = variables
             };
 
-            var url = $"https://dsm-1.zeebe.camunda.io:443/{clusterId}/v2/process-instances";
+            var url = $"https://{_settings.Camunda_region_id}.zeebe.camunda.io:443/{_settings.CamundaClusterID}/v2/process-instances";
             HttpResponseMessage response = await GetHttpResponseMessage(url, "zeebe", requestBody);
 
             // Read and display response
@@ -40,13 +47,13 @@ namespace Xome.Cascade2.CamundaService.Application.Services
                 assignee = assignee, //sujata.telang@infovision.com
                 allowOverrideAssignment = true
             };
-            
-            var tasks = await GetProcessInstanceTasks(processInstanceKey, clusterId);
+
+            var tasks = await GetProcessInstanceTasks(processInstanceKey);
             var assigntask = tasks.Any() ? tasks.FirstOrDefault(t => t.id == taskId).id : string.Empty;
 
             if (assigntask != null)
             {
-                var url = $"https://dsm-1.tasklist.camunda.io/{clusterId}/v2/user-tasks/{taskId}/assignment";
+                var url = $"https://{_settings.Camunda_region_id}.tasklist.camunda.io/{clusterId}/v2/user-tasks/{taskId}/assignment";
                 HttpResponseMessage response = await GetHttpResponseMessage(url, "tasklist", requestBody, "POST");
 
                 string jsonString = await response.Content.ReadAsStringAsync();
@@ -57,18 +64,18 @@ namespace Xome.Cascade2.CamundaService.Application.Services
 
         public async Task GetTaskDetails(string taskId, string clusterId)
         {
-            var url = $"https://dsm-1.tasklist.camunda.io/{clusterId}/v1/tasks/{taskId}";
+            var url = $"https://{_settings.Camunda_region_id}.tasklist.camunda.io/{clusterId}/v1/tasks/{taskId}";
             HttpResponseMessage response = await GetHttpResponseMessage(url, "tasklist", new object());
         }
 
-        public async Task<List<CamundaTask>> GetProcessInstanceTasks(string processInstanceKey, string clusterId)
+        public async Task<List<CamundaTask>> GetProcessInstanceTasks(string processInstanceKey)
         {
             var requestBody = new
             {
                 processInstanceKey = processInstanceKey
             };
 
-            var url = $"https://dsm-1.tasklist.camunda.io/{clusterId}/v1/tasks/search";
+            var url = $"https://{_settings.Camunda_region_id}.tasklist.camunda.io/{_settings.CamundaClusterID}/v1/tasks/search";
             HttpResponseMessage response = await GetHttpResponseMessage(url, "tasklist", requestBody);
 
             string jsonString = await response.Content.ReadAsStringAsync();
@@ -84,7 +91,7 @@ namespace Xome.Cascade2.CamundaService.Application.Services
                 processInstanceKey = processInstanceKey
             };
 
-            var url = $"https://dsm-1.operate.camunda.io/{clusterId}/v1/variables/search";
+            var url = $"https://{_settings.Camunda_region_id}.operate.camunda.io/{clusterId}/v1/variables/search";
             HttpResponseMessage response = await GetHttpResponseMessage(url, "operate", requestBody);
         }
 
@@ -92,7 +99,7 @@ namespace Xome.Cascade2.CamundaService.Application.Services
         {
             var requestBody = new { };
 
-            var url = $"https://dsm-1.tasklist.camunda.io/{clusterId}/v1/tasks/{taskId}/variables/search";
+            var url = $"https://{_settings.Camunda_region_id}.tasklist.camunda.io/{clusterId}/v1/tasks/{taskId}/variables/search";
             HttpResponseMessage response = await GetHttpResponseMessage(url, "tasklist", requestBody);
 
             string jsonString = await response.Content.ReadAsStringAsync();
@@ -112,7 +119,7 @@ namespace Xome.Cascade2.CamundaService.Application.Services
 
             var intTaskId = Convert.ToInt64(taskId);
 
-            var url = $"https://dsm-1.tasklist.camunda.io/{clusterId}/v2/user-tasks/{intTaskId}/completion";
+            var url = $"https://{_settings.Camunda_region_id}.tasklist.camunda.io/{clusterId}/v2/user-tasks/{intTaskId}/completion";
             await GetHttpResponseMessage(url, "tasklist", requestBody);
         }
 
@@ -140,12 +147,12 @@ namespace Xome.Cascade2.CamundaService.Application.Services
             HttpClient _httpClient = new HttpClient();
             var values = new Dictionary<string, string>
             {
-                 { "grant_type", "client_credentials" },
-                // { "client_id", "zFey.6BmlPYuCbN-EnPlnRDud02cLh2E" },
-                //{ "client_secret", "H8-qO152.MLIiA3jFaQIIgh-DR4pgr~Gi05Yopeu9As6Mno3yxFAEbN144ZEvABB" },
-                { "client_id", "4.ov6KdTVNRXE49f.GAwq9qMNFgSq915" },
-                { "client_secret", "jJPMwBmzEb3XojD~OI3pHsEcrltEAljKFcyE4VC9Cq7SofcjddKuApPNiq7thsjw" },
-                { "audience", $"{audience}.camunda.io" }
+                { "grant_type", "client_credentials" },
+                { "audience", $"{audience}.camunda.io" },
+                //{ "client_id", "4.ov6KdTVNRXE49f.GAwq9qMNFgSq915" },
+                //{ "client_secret", "jJPMwBmzEb3XojD~OI3pHsEcrltEAljKFcyE4VC9Cq7SofcjddKuApPNiq7thsjw" },
+                { "client_id", $"{_settings.Camunda_client_id}"  },
+                { "client_secret", $"{_settings.Camunda_client_secret}" },
             };
 
             var content = new FormUrlEncodedContent(values);

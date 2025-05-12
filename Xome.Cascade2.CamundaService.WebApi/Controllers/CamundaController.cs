@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Xome.Cascade2.CamundaService.Application.Services;
 using Xome.Cascade2.CamundaService.Domain.Entities;
+using Xome.Cascade2.CamundaService.Domain.Entities.Workflows.FCLT;
 
 namespace Xome.Cascade2.CamundaService.WebApi.Controllers
 {
@@ -34,7 +35,14 @@ namespace Xome.Cascade2.CamundaService.WebApi.Controllers
                 ownerContact = assetUploadRequest.OwnerContact,
                 propertyType = assetUploadRequest.PropertyType,
             };
-            return await _camundaService.StartProcess(getCamundaClusterId, processDefinitionId, variables);
+            return await _camundaService.StartProcess(processDefinitionId, variables);
+            // return Ok($"Process started successfully");
+        }
+        [HttpPost("FCLTStartProcess")]
+        public async Task<CamundaProcess> FCLTStartProcess(FCLTProcessInstanceVariables variables)
+        {
+            var processDefinitionId = "AssetOnboardingBPM";
+            return await _camundaService.StartProcess(processDefinitionId, variables);
             // return Ok($"Process started successfully");
         }
         [HttpPost("AssignCamundaTask")]
@@ -44,6 +52,7 @@ namespace Xome.Cascade2.CamundaService.WebApi.Controllers
             return await _camundaService.AssignCamundaTask(taskId, assignee, getCamundaClusterId, processInstanceKey);
             // return Ok($"Process started successfully");
         }
+        
         [HttpPost("Asset/CompleteCamundaTask")]
         public async Task CompleteCamundaTask(string taskId, AssetUploadRequest assetUploadRequest)
         {
@@ -71,6 +80,12 @@ namespace Xome.Cascade2.CamundaService.WebApi.Controllers
             var camundaClusterId = _configuration["CamundaClusterID"];
             var variables = await _camundaService.GetTaskVariables(taskId, camundaClusterId);
             return variables;
+        }
+        
+        [HttpPost("GetProcessInstanceTasks")]
+        public async Task<List<CamundaTask>> GetProcessInstanceTasks(string processInstanceKey)
+        {
+            return await _camundaService.GetProcessInstanceTasks(processInstanceKey);
         }
     }
 }

@@ -7,6 +7,7 @@ using Xome.Cascade2.CamundaService.Infrastructure.Data;
 using Xome.Cascade2.CamundaService.WebApi.Config;
 using Xome.Cascade2.CamundaService.WebApi.Middlewares;
 using Azure.Messaging.ServiceBus;
+using Xome.Cascade2.AccountService.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,8 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(builder => builder.RegisterModule(new AutofacModule()));
 builder.Services.Configure<ServiceBusSettings>(
     builder.Configuration.GetSection("AzureServiceBus"));
+
+builder.Services.Configure<ExternalServiceSettings>(builder.Configuration.GetSection("ExternalServiceSettings"));
 
 builder.Services.AddScoped<CamundaService>();
 builder.Services.AddScoped<ServiceBusPublisher>();
