@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xome.Cascade2.CamundaService.Domain", "Xome.Cascade2.CamundaService.Domain\Xome.Cascade2.CamundaService.Domain.csproj", "{044C7FF8-B282-4AD6-9E38-84CCC21AACC1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xome.Cascade2.AccountService.Application", "Xome.Cascade2.CamundaService.Application\Xome.Cascade2.AccountService.Application.csproj", "{572CACD9-DBA0-4F37-8F29-3E12A711B4D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xome.Cascade2.CamundaService.Application", "Xome.Cascade2.CamundaService.Application\Xome.Cascade2.CamundaService.Application.csproj", "{572CACD9-DBA0-4F37-8F29-3E12A711B4D6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xome.Cascade2.CamundaService.Infrastructure", "Xome.Cascade2.CamundaService.Infrastructure\Xome.Cascade2.CamundaService.Infrastructure.csproj", "{FE5D78D7-DBFF-459F-A90B-B7F996DDFFDC}"
 EndProject

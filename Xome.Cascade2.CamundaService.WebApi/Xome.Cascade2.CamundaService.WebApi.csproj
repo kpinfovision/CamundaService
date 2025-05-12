@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Xome.Cascade2.CamundaService.Application\Xome.Cascade2.AccountService.Application.csproj" />
+    <ProjectReference Include="..\Xome.Cascade2.CamundaService.Application\Xome.Cascade2.CamundaService.Application.csproj" />
     <ProjectReference Include="..\Xome.Cascade2.CamundaService.Infrastructure\Xome.Cascade2.CamundaService.Infrastructure.csproj" />
   </ItemGroup>
 
